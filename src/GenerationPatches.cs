@@ -60,7 +60,7 @@ internal static class GenerationLogPatch
         for (int i = 0; i < indices.Count; i++)
         {
             ObstacleDescription d = ObstacleManager.GetDescriptionFromIndex(indices[i]);
-            if (d) rolled.Add($"{(int)d.rarity + 1}*");
+            if (d) rolled.Add(Plugin.TierName((int)d.rarity));
         }
         Plugin.Log.LogInfo($"Rolled obstacles with custom weights [{Plugin.DescribeWeights()}]: {string.Join(" ", rolled)}");
     }

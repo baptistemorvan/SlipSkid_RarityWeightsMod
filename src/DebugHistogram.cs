@@ -23,7 +23,7 @@ internal static class DebugHistogram
             ObstacleDescription d = ObstacleDescription.GetRandomWeightedObstacleDescription(pool);
             if (d) counts[(int)d.rarity]++;
         }
-        string split = string.Join(", ", Enumerable.Range(0, 5).Select(r => $"{r + 1}*={counts[r] * 100f / rolls:0.0}%"));
+        string split = string.Join(", ", Enumerable.Range(0, Plugin.RarityCount).Select(r => $"{Plugin.TierName(r)}={counts[r] * 100f / rolls:0.0}%"));
         Plugin.Log.LogInfo($"Histogram of {rolls} rolls over {pool.Length} obstacles, weights [{Plugin.DescribeWeights()}]: {split}");
     }
 }

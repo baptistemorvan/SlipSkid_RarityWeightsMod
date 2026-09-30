@@ -16,8 +16,8 @@ public class Plugin : BaseUnityPlugin
     public const string Name = "Rarity Weights";
     public const string Version = "1.0.0";
 
-    /// <summary>Rarities exposed in the rules menu: 1 star (Common) to 5 stars (Legendary).</summary>
-    public const int RarityCount = 5;
+    /// <summary>Rarities exposed in the rules menu: 1 star (Common) to 5 stars (Legendary), plus Unique.</summary>
+    public const int RarityCount = 6;
 
     internal static ManualLogSource Log;
 
@@ -45,9 +45,11 @@ public class Plugin : BaseUnityPlugin
         {
             var rarity = (ObstacleDescription.ObstacleRarity)i;
             VanillaWeights[i] = _weightTable[rarity];
-            _weights[i] = Config.Bind("Weights", $"{i + 1}Star_{rarity}", VanillaWeights[i],
+            string key = i < 5 ? $"{i + 1}Star_{rarity}" : rarity.ToString();
+            string what = i < 5 ? $"{i + 1}-star ({rarity})" : rarity.ToString();
+            _weights[i] = Config.Bind("Weights", key, VanillaWeights[i],
                 new ConfigDescription(
-                    $"Selection weight of {i + 1}-star ({rarity}) obstacles. Vanilla: {VanillaWeights[i]}. " +
+                    $"Selection weight of {what} obstacles. Vanilla: {VanillaWeights[i]}. " +
                     "Editable in game from the rules menu (host only).",
                     new AcceptableValueRange<int>(MinWeight, MaxWeight)));
         }
@@ -60,6 +62,9 @@ public class Plugin : BaseUnityPlugin
     }
 
     private void Update() => DebugHistogram.Tick();
+
+    /// <summary>Short tier label: 1* to 5*, then Unique.</summary>
+    public static string TierName(int rarity) => rarity < 5 ? $"{rarity + 1}*" : ((ObstacleDescription.ObstacleRarity)rarity).ToString();
 
     public static int GetWeight(int rarity) => _weights[rarity].Value;
 
@@ -94,7 +99,7 @@ public class Plugin : BaseUnityPlugin
     internal static string DescribeWeights()
     {
         var parts = new string[RarityCount];
-        for (int i = 0; i < RarityCount; i++) parts[i] = $"{i + 1}*={GetWeight(i)}";
+        for (int i = 0; i < RarityCount; i++) parts[i] = $"{TierName(i)}={GetWeight(i)}";
         return string.Join(", ", parts);
     }
 }

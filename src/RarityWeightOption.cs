@@ -16,7 +16,9 @@ public class RarityWeightOption : GameRulesOption
 
     private int Value => Plugin.GetWeight(rarityIndex);
 
-    private string DisplayName => $"Rarity Weight {rarityIndex + 1} Star{(rarityIndex == 0 ? "" : "s")}";
+    private string DisplayName => rarityIndex < 5
+        ? $"Rarity Weight {rarityIndex + 1} Star{(rarityIndex == 0 ? "" : "s")}"
+        : "Rarity Weight Unique";
 
     public override int CompareToDefaultValue(GameManagerNetworkVariables.CustomGameRules currentRules)
     {
@@ -43,7 +45,7 @@ public class RarityWeightOption : GameRulesOption
         {
             if (!d || d.maxQuantity == 0) continue;
             int r = (int)d.rarity;
-            int w = r < Plugin.RarityCount ? Plugin.GetWeight(r) : d.RarityWeight;
+            int w = Plugin.GetWeight(r);
             total += w;
             if (r == rarityIndex) mine += w;
         }
@@ -51,7 +53,7 @@ public class RarityWeightOption : GameRulesOption
         return (float)mine / total;
     }
 
-    // Includes every vanilla weight (110, 60, 37, 25, 12) so the defaults are always reachable.
+    // Includes every vanilla weight (110, 60, 37, 25, 12, 2) so the defaults are always reachable.
     private static readonly int[] Ladder =
         { 0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 37, 45, 50, 60, 75, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500, 750, 1000 };
 
