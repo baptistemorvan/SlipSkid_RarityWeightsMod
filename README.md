@@ -12,8 +12,11 @@ often each rarity shows up in the obstacle selection.
 - A weight of 0 removes that rarity. If every obstacle still allowed ends up at 0 (for example when a game
   modifier restricts the pool to rarities you zeroed), that roll uses the vanilla weights instead, so the game
   can't get stuck offering the same card.
-- Values are saved to `BepInEx/config/slipskid.rarityweights.cfg`, so they carry over to your next session.
-  You can also edit them there.
+- The weights work like the game's other rules. They reset to the defaults whenever a new game (lobby) is
+  created, and they are saved in and loaded from **rule presets**. When you save a preset, the weights are
+  added to its file as an extra `rarityWeights` field, which the game ignores without the mod. Changed weights
+  show up in the preset summary. Loading a built-in preset, or one saved without the mod, sets the weights back
+  to the defaults.
 
 ## Multiplayer
 
@@ -22,15 +25,14 @@ resulting obstacle IDs. The mod changes only the host's roll and never touches t
 vanilla players can join and play normally. Clients that do have the mod don't see the rows; only the host
 can change them.
 
-These weights aren't included in the game's rule presets.
-
 ## Install
 
 1. Install BepInEx 6 (Unity Mono) into the game folder. Your copy already has 6.0.0-be.697.
 2. Copy `SlipSkid.RarityWeights.dll` to `Slip & Skid/BepInEx/plugins/RarityWeights/`.
 3. Start the game. `BepInEx/LogOutput.log` should show `Rarity Weights 1.0.0 loaded`.
 
-To uninstall, delete the `RarityWeights` folder (and the `.cfg` file if you want).
+To uninstall, delete the `RarityWeights` folder (and `BepInEx/config/slipskid.rarityweights.cfg`). Presets
+saved with the mod keep working in the vanilla game.
 
 ## Build
 
@@ -52,7 +54,9 @@ rarity split of 10,000 simulated rolls using the current weights.
 - `ObstacleDescription.GetRandomWeightedObstacleDescription`: a Harmony prefix writes the custom weights into
   the game's weight table before each roll, and a finalizer puts the vanilla values back afterwards.
 - `GameRulesValuesMenu.Awake`: the "obstacles per round" row is cloned for each rarity, and its component is
-  replaced with one that reads and writes the plugin config instead of the networked `CustomGameRules`.
+  replaced with one that edits the host-only weights instead of the networked `CustomGameRules`.
+- `GameManagerNetworkVariables.ResetRules` / `LoadPreset` and `GameRulesPresetMenu.SavePreset` /
+  `GameRulesRecapDisplay.DisplayPreset`: reset, load, save and summarize the weights along with the vanilla rules.
 
 ## Credits
 

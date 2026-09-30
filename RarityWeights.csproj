@@ -24,6 +24,7 @@
     <Reference Include="$(Managed)\Unity.Localization.dll" Private="false" />
     <Reference Include="$(Managed)\Unity.Netcode.Runtime.dll" Private="false" />
     <Reference Include="$(Managed)\Unity.InputSystem.dll" Private="false" />
+    <Reference Include="$(Managed)\UnityEngine.JSONSerializeModule.dll" Private="false" />
   </ItemGroup>
   <Target Name="CopyToPlugins" AfterTargets="Build" Condition="Exists('$(GameDir)\BepInEx\plugins')">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\BepInEx\plugins\RarityWeights" />

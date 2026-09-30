@@ -8,7 +8,7 @@ namespace RarityWeights;
 
 /// <summary>
 /// A rules-menu row for one rarity weight. Unlike the vanilla options it never touches the networked
-/// CustomGameRules struct: the value lives in the host's BepInEx config, so clients don't need the mod.
+/// CustomGameRules struct: the value lives only on the host (see <see cref="Plugin"/>), so clients don't need the mod.
 /// </summary>
 public class RarityWeightOption : GameRulesOption
 {
@@ -16,9 +16,7 @@ public class RarityWeightOption : GameRulesOption
 
     private int Value => Plugin.GetWeight(rarityIndex);
 
-    private string DisplayName => rarityIndex < 5
-        ? $"Rarity Weight {rarityIndex + 1} Star{(rarityIndex == 0 ? "" : "s")}"
-        : "Rarity Weight Unique";
+    private string DisplayName => Plugin.RowName(rarityIndex);
 
     public override int CompareToDefaultValue(GameManagerNetworkVariables.CustomGameRules currentRules)
     {

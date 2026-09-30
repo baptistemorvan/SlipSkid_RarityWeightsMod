@@ -124,12 +124,16 @@ internal static class ShowRowsForHostPatch
     }
 }
 
-[HarmonyPatch(typeof(GameRulesMenu), nameof(GameRulesMenu.ResetRules))]
-internal static class ResetRowsPatch
+/// <summary>
+/// The game resets its rules when the lobby's network variables spawn (every new game) and from the rules menu's
+/// reset button. Reset the weights at the same moments so they behave like every other rule.
+/// </summary>
+[HarmonyPatch(typeof(GameManagerNetworkVariables), nameof(GameManagerNetworkVariables.ResetRules))]
+internal static class ResetWeightsPatch
 {
-    private static void Postfix()
+    private static void Postfix(GameManagerNetworkVariables __instance)
     {
-        if (!GameManager.instance || !GameManager.instance.IsServer) return;
+        if (!__instance.IsServer) return;
         Plugin.ResetWeights();
         GameRulesMenu.Refresh();
     }

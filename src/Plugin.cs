@@ -21,7 +21,8 @@ public class Plugin : BaseUnityPlugin
 
     internal static ManualLogSource Log;
 
-    private static ConfigEntry<int>[] _weights;
+    // Session state, like the vanilla rules: reset whenever the game resets its rules (new lobby, reset button).
+    private static readonly int[] _weights = new int[RarityCount];
     private static readonly int[] VanillaWeights = new int[RarityCount];
     private static Dictionary<ObstacleDescription.ObstacleRarity, int> _weightTable;
 
@@ -40,19 +41,9 @@ public class Plugin : BaseUnityPlugin
         FieldInfo field = AccessTools.Field(typeof(ObstacleDescription), "obstacleRarityWeightTable");
         _weightTable = (Dictionary<ObstacleDescription.ObstacleRarity, int>)field.GetValue(null);
 
-        _weights = new ConfigEntry<int>[RarityCount];
         for (int i = 0; i < RarityCount; i++)
-        {
-            var rarity = (ObstacleDescription.ObstacleRarity)i;
-            VanillaWeights[i] = _weightTable[rarity];
-            string key = i < 5 ? $"{i + 1}Star_{rarity}" : rarity.ToString();
-            string what = i < 5 ? $"{i + 1}-star ({rarity})" : rarity.ToString();
-            _weights[i] = Config.Bind("Weights", key, VanillaWeights[i],
-                new ConfigDescription(
-                    $"Selection weight of {what} obstacles. Vanilla: {VanillaWeights[i]}. " +
-                    "Editable in game from the rules menu (host only).",
-                    new AcceptableValueRange<int>(MinWeight, MaxWeight)));
-        }
+            VanillaWeights[i] = _weightTable[(ObstacleDescription.ObstacleRarity)i];
+        ResetWeights();
 
         _debugKey = Config.Bind("Debug", "HistogramKey", false,
             "Press F8 (host, in a lobby) to log the rarity split of 10000 simulated rolls to the BepInEx log.");
@@ -66,7 +57,14 @@ public class Plugin : BaseUnityPlugin
     /// <summary>Short tier label: 1* to 5*, then Unique.</summary>
     public static string TierName(int rarity) => rarity < 5 ? $"{rarity + 1}*" : ((ObstacleDescription.ObstacleRarity)rarity).ToString();
 
-    public static int GetWeight(int rarity) => _weights[rarity].Value;
+    /// <summary>Label used for the rules-menu row and the preset summary.</summary>
+    public static string RowName(int rarity) => rarity < 5
+        ? $"Rarity Weight {rarity + 1} Star{(rarity == 0 ? "" : "s")}"
+        : "Rarity Weight Unique";
+
+    public static int GetWeight(int rarity) => _weights[rarity];
+
+    public static int[] GetWeights() => (int[])_weights.Clone();
 
     public static int GetDefaultWeight(int rarity) => VanillaWeights[rarity];
 
@@ -74,7 +72,7 @@ public class Plugin : BaseUnityPlugin
     {
         if (value < MinWeight) value = MinWeight;
         if (value > MaxWeight) value = MaxWeight;
-        _weights[rarity].Value = value;
+        _weights[rarity] = value;
     }
 
     public static bool IsCustomized()
@@ -86,7 +84,14 @@ public class Plugin : BaseUnityPlugin
 
     public static void ResetWeights()
     {
-        for (int i = 0; i < RarityCount; i++) _weights[i].Value = VanillaWeights[i];
+        for (int i = 0; i < RarityCount; i++) _weights[i] = VanillaWeights[i];
+    }
+
+    /// <summary>Sets all weights; tiers missing from <paramref name="weights"/> (or a null array) get vanilla values.</summary>
+    public static void SetWeights(int[] weights)
+    {
+        for (int i = 0; i < RarityCount; i++)
+            SetWeight(i, weights != null && i < weights.Length ? weights[i] : VanillaWeights[i]);
     }
 
     /// <summary>Writes either the custom or the vanilla weights into the game's weight table.</summary>
