@@ -27,7 +27,7 @@ can change them.
 
 ## Install
 
-1. Install BepInEx 6 (Unity Mono) into the game folder. Your copy already has 6.0.0-be.697.
+1. Install BepInEx 6 (Unity Mono) into the game folder.
 2. Copy `SlipSkid.RarityWeights.dll` to `Slip & Skid/BepInEx/plugins/RarityWeights/`.
 3. Start the game. `BepInEx/LogOutput.log` should show `Rarity Weights 1.0.0 loaded`.
 
